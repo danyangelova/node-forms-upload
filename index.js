@@ -1,6 +1,7 @@
 // This code is provided only for educational purpose. It is not intended for production use
 
 const http = require("http");
+const queryString = require("querystring");
 
 const server = new http.Server(); //inherits from EventEmitter
 
@@ -37,8 +38,21 @@ server.on("request", (req, res) => { //listen for incoming HTTP requests ("reque
 </html>
 `);
         res.end();
+    } else if (req.url === "/" && req.method === "POST") {
+        console.log('----POST DATA----');
+        let body = "";
+        req.on("data", chunk => {
+            // console.log(chunk);
+            body += chunk;
+        });
 
-    } 
+        req.on("close", () => {
+            // console.log(body); //query string
+            const data = queryString.parse(body); //query string -> js object
+            console.log(data);
+            res.end();
+        });
+    }
 
 
 });
