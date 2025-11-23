@@ -6,7 +6,7 @@ const queryString = require("querystring");
 const server = new http.Server(); //inherits from EventEmitter
 
 
-server.on("request", (req, res) => { //listen for incoming HTTP requests ("request" event)
+server.on("request", (req, res) => { //"request" event passes req and res to the handler
     // console.log(req.url);
     if (req.url === "/" && req.method === "GET") {
         res.writeHead(200, {
@@ -38,16 +38,17 @@ server.on("request", (req, res) => { //listen for incoming HTTP requests ("reque
 </html>
 `);
         res.end();
+
     } else if (req.url === "/" && req.method === "POST") {
         console.log('----POST DATA----');
         let body = "";
         req.on("data", chunk => {
-            // console.log(chunk);
+            console.log(`chunk: ${chunk}`); //query string expecting //cqlata forma ni idva kato edin string
             body += chunk;
         });
 
-        req.on("close", () => {
-            // console.log(body); //query string
+        req.on("end", () => {
+            // console.log(body); //the query string
             const data = queryString.parse(body); //query string -> js object
             console.log(data);
             res.end();
