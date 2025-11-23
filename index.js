@@ -2,6 +2,9 @@
 
 const http = require("http");
 const queryString = require("querystring");
+const path = require("path");
+const fs = require("fs");
+const { EOL } = require("os");
 
 const server = new http.Server(); //inherits from EventEmitter
 
@@ -71,11 +74,22 @@ server.on("request", (req, res) => { //"request" event passes req and res to the
             const boundary = req.headers['content-type'].split("boundary=")[1];
 
             const parts = data.split(`--${boundary}`); //because --<boundary>
-            console.log(parts[1]);
-            console.log(parts[2]);
-            // console.log(parts[3]); //img
-            
-            res.end();
+            // console.log(parts[3]); //the img: headers,   , binary body
+
+            const [meta, imageData] = parts[3].split(EOL + EOL); 
+            const fileName = meta.match(/filename="(.+)"/)[1];
+
+            //where we want to save the uploaded file on the server
+            const savePath = path.join(__dirname, 'uploads', fileName); //example: /Users/Dani/Projects/node-forms-upload/uploads/image-heart.jpg
+
+            //now save the file on the disk
+            fs.writeFile(savePath, imageData, 'binary', (err) => {  //zapazvame faila lokalno na savePath (na servera)
+                if (err) {
+                    return res.end();
+                }
+                console.log('Image uploaded');
+                res.end();
+            });
         });
 
     }
